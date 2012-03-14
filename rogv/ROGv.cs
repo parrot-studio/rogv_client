@@ -311,7 +311,7 @@ namespace rogv
         {
             try
             {
-                if (PostServer("/", mapper.Serialize(), "put") == "OK")
+                if (PostServer("/update", mapper.Serialize(), "put") == "OK")
                 {
                     return true;
                 }
