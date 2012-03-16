@@ -70,7 +70,7 @@ namespace rogv
 
     public class FortMapper
     {
-        private String parser = @"砦.*\[(.+) (.)\].*の(.+)を.*\[(.+)\]";
+        private String parser = @"砦.*\[(.+) (.)\].*の(.+)を.*?\[(.+)\]";
         private Dictionary<String, Fort> fortMap = new Dictionary<String, Fort>();
         private DateTime updateTime;
 
