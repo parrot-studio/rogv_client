@@ -73,9 +73,11 @@ namespace rogv
         private String parser = @"砦.*\[(.+) (.)\].*の(.+)を.*?\[(.+)\]";
         private Dictionary<String, Fort> fortMap = new Dictionary<String, Fort>();
         private DateTime updateTime;
+        private String buffer = "";
 
         public void ReadLog(String logs, DateTime time)
         {
+            buffer = "";
             foreach (String log in logs.Split('\n'))
             {
                 UpdateFortFromLog(log, time);
@@ -85,7 +87,8 @@ namespace rogv
 
         private void UpdateFortFromLog(String log, DateTime time)
         {
-            foreach (Match m in Regex.Matches(log, parser))
+            buffer += log.Trim();
+            foreach (Match m in Regex.Matches(buffer, parser))
             {
                 String place = m.Groups[1].Value.Trim();
                 String num = m.Groups[2].Value.Trim();
@@ -112,6 +115,7 @@ namespace rogv
                     fortMap[id] = fort;
                 }
                 fort.UpdateGuildStatus(guild, time);
+                buffer = "";
             }
         }
 
