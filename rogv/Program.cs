@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
+using System.Collections;
 
 namespace rogv
 {
@@ -75,6 +76,11 @@ namespace rogv
         private DateTime updateTime;
         private String buffer = "";
 
+        public DateTime UpdateTime
+        {
+            get { return updateTime; }
+        }
+
         public void ReadLog(String logs, DateTime time)
         {
             buffer = "";
@@ -83,6 +89,25 @@ namespace rogv
                 UpdateFortFromLog(log, time);
                 updateTime = time;
             }
+        }
+
+        public void ApplyLatestInfo(String stat)
+        {
+            var data = (new JavaScriptSerializer()).Deserialize<Dictionary<String, Object>>(stat);
+            var utime = DateTime.Parse((String)data["update_time"]);
+            if (this.updateTime != null && this.updateTime >= utime)
+            {
+                return;
+            }
+
+            foreach (Object d in (ArrayList)data["forts"])
+            {
+                var fd = (Dictionary<String, Object>)d;
+                UpdateGuildStatus((String)fd["fort_id"],
+                    (String)fd["fort_name"], (String)fd["formal_name"],
+                    (String)fd["guild_name"], DateTime.Parse((String)fd["update_time"]));
+            }
+            this.updateTime = utime;
         }
 
         private void UpdateFortFromLog(String log, DateTime time)
@@ -104,17 +129,7 @@ namespace rogv
                 String id = head + num;
                 String name = place + " " + num;
 
-                Fort fort = null;
-                if (fortMap.ContainsKey(id))
-                {
-                    fort = fortMap[id];
-                }
-                else
-                {
-                    fort = new Fort(id, name, formal);
-                    fortMap[id] = fort;
-                }
-                fort.UpdateGuildStatus(guild, time);
+                UpdateGuildStatus(id, name, formal, guild, time);
                 buffer = "";
             }
         }
@@ -122,7 +137,7 @@ namespace rogv
         public void Reset()
         {
             fortMap = new Dictionary<String, Fort>();
-            updateTime = DateTime.Now;
+            updateTime = new DateTime(2001,1,1);
         }
 
         public Fort FortInfo(String id)
@@ -151,6 +166,22 @@ namespace rogv
                 });
             }
             return (new JavaScriptSerializer()).Serialize(dict);
+        }
+
+        private void UpdateGuildStatus(String fid, String fortName, String formalName,
+            String guildName, DateTime utime)
+        {
+            Fort fort = null;
+            if (fortMap.ContainsKey(fid))
+            {
+                fort = fortMap[fid];
+            }
+            else
+            {
+                fort = new Fort(fid, fortName, formalName);
+                fortMap[fid] = fort;
+            }
+            fort.UpdateGuildStatus(guildName, utime);
         }
     }
 }

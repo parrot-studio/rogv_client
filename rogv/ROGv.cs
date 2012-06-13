@@ -12,7 +12,6 @@ namespace rogv
     {
         private WebClient client = new WebClient();
         private FortMapper mapper = new FortMapper();
-        private DateTime updateTime;
         private Boolean watching = false;
         private FileInfo lastFile;
 
@@ -117,9 +116,11 @@ namespace rogv
         private void loadSubmitButton_Click(object sender, EventArgs e)
         {
             String path = loadBox.Text;
+            mapper.Reset();
             if (UpdateFortsInfo(path))
             {
                 lastFile = new FileInfo(path);
+                ViewFortsInfo();
             }
         }
 
@@ -134,11 +135,23 @@ namespace rogv
             }
         }
 
+        private void serverCutinButton_Click(object sender, EventArgs e)
+        {
+            if (CutInServerInfo())
+            {
+                MessageBox.Show("サーバに送信しました。",
+                    "ROGv",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+            }
+        }
+
         private void watchButton_Click(object sender, EventArgs e)
         {
             if (watching)
             {
                 chatLogTimer.Enabled = false;
+                loadPanel.Enabled = true;
                 watching = false;
                 watchButton.Text = "監視開始";
             }
@@ -154,6 +167,7 @@ namespace rogv
                     return;
                 }
                 chatLogTimer.Enabled = true;
+                loadPanel.Enabled = false;
                 watching = true;
                 watchButton.Text = "監視停止";
 
@@ -175,18 +189,23 @@ namespace rogv
             }
             if (lastFile == null || lastFile.LastWriteTime < target.LastWriteTime)
             {
-                UpdateFortsInfo(target.FullName);
-                UpdateServerInfo();
+                ApplyLatestServerInfo();
+                if (mapper.UpdateTime < target.LastWriteTime)
+                {
+                    UpdateFortsInfo(target.FullName);
+                    UpdateServerInfo();
+                }
                 lastFile = target;
+                ViewFortsInfo();
             }
         }
 
-        private void resetButton_Click(object sender, EventArgs e)
+        private void latestButton_Click(object sender, EventArgs e)
         {
-            updateTime = DateTime.Now;
-            lastFile = null;
             mapper.Reset();
+            ApplyLatestServerInfo();
             ViewFortsInfo();
+            lastFile = null;
         }
 
         private String PostServer(String path, String data, String method,
@@ -243,9 +262,6 @@ namespace rogv
                     File.ReadAllText(path, Encoding.Default),
                     uTime);
 
-                updateTime = uTime;
-                ViewFortsInfo();
-
                 return true;
             }
             catch
@@ -257,7 +273,6 @@ namespace rogv
                 return false;
             }
         }
-
 
         private void SetFortInfo(String id, Label label)
         {
@@ -274,7 +289,12 @@ namespace rogv
 
         private void ViewFortsInfo()
         {
-            updateTimeLabel.Text = updateTime.ToString();
+            if (lastFile != null)
+            {
+                logUpdateTimeLabel.Text = lastFile.LastWriteTime.ToString();
+            }
+            dataUpdateTimeLabel.Text = mapper.UpdateTime.ToString();
+
             SetFortInfo("V1", resultV1);
             SetFortInfo("V2", resultV2);
             SetFortInfo("V3", resultV3);
@@ -307,11 +327,11 @@ namespace rogv
             SetFortInfo("F5", resultF5);
         }
 
-        private Boolean UpdateServerInfo()
+        private Boolean PostMapperInfo(String path)
         {
             try
             {
-                if (PostServer("/update", mapper.Serialize(), "put") == "OK")
+                if (PostServer(path, mapper.Serialize(), "put") == "OK")
                 {
                     return true;
                 }
@@ -330,6 +350,39 @@ namespace rogv
             }
         }
 
+        private Boolean UpdateServerInfo()
+        {
+            return PostMapperInfo("/update");
+        }
 
+        private Boolean CutInServerInfo()
+        {
+            return PostMapperInfo("/cutin");
+        }
+
+        private Boolean ApplyLatestServerInfo()
+        {
+            try
+            {
+                var ret = PostServer("/latest", "", "post");
+                if (ret != null)
+                {
+                    mapper.ApplyLatestInfo(ret);
+                    return true;
+                }
+                else
+                {
+                    throw new System.Net.WebException();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("通信に失敗しました。",
+                   "エラー",
+                   MessageBoxButtons.OK,
+                   MessageBoxIcon.Error);
+                return false;
+            }
+        }
     }
 }

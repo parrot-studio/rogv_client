@@ -31,8 +31,15 @@
             this.components = new System.ComponentModel.Container();
             this.mainTab = new System.Windows.Forms.TabControl();
             this.mainTabPage1 = new System.Windows.Forms.TabPage();
+            this.loadPanel = new System.Windows.Forms.Panel();
+            this.serverCutinButton = new System.Windows.Forms.Button();
+            this.serverPostButton = new System.Windows.Forms.Button();
+            this.loadSubmitButton = new System.Windows.Forms.Button();
+            this.loadSelectButton = new System.Windows.Forms.Button();
+            this.loadBox = new System.Windows.Forms.TextBox();
+            this.loadLabel = new System.Windows.Forms.Label();
             this.resultPanel = new System.Windows.Forms.Panel();
-            this.updateTimeLabel = new System.Windows.Forms.Label();
+            this.logUpdateTimeLabel = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.resultF1 = new System.Windows.Forms.Label();
             this.resultRowV = new System.Windows.Forms.Label();
@@ -75,15 +82,10 @@
             this.resultF4 = new System.Windows.Forms.Label();
             this.resultF5 = new System.Windows.Forms.Label();
             this.resultF3 = new System.Windows.Forms.Label();
-            this.resultLabel = new System.Windows.Forms.Label();
+            this.logUpdateTimeHeaderLabel = new System.Windows.Forms.Label();
             this.startPanel = new System.Windows.Forms.Panel();
+            this.latestButton = new System.Windows.Forms.Button();
             this.watchButton = new System.Windows.Forms.Button();
-            this.loadPanel = new System.Windows.Forms.Panel();
-            this.resetButton = new System.Windows.Forms.Button();
-            this.loadSubmitButton = new System.Windows.Forms.Button();
-            this.loadSelectButton = new System.Windows.Forms.Button();
-            this.loadBox = new System.Windows.Forms.TextBox();
-            this.loadLabel = new System.Windows.Forms.Label();
             this.mainTabPage2 = new System.Windows.Forms.TabPage();
             this.serverPanel = new System.Windows.Forms.Panel();
             this.authPassBox = new System.Windows.Forms.TextBox();
@@ -104,17 +106,20 @@
             this.targetlabel = new System.Windows.Forms.Label();
             this.targetPathBox = new System.Windows.Forms.TextBox();
             this.chatLogTimer = new System.Windows.Forms.Timer(this.components);
-            this.serverPostButton = new System.Windows.Forms.Button();
+            this.dataUpdateTimeHeaderLabel = new System.Windows.Forms.Label();
+            this.dataUpdateTimeLabel = new System.Windows.Forms.Label();
+            this.updateTimePanel = new System.Windows.Forms.Panel();
             this.mainTab.SuspendLayout();
             this.mainTabPage1.SuspendLayout();
+            this.loadPanel.SuspendLayout();
             this.resultPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.startPanel.SuspendLayout();
-            this.loadPanel.SuspendLayout();
             this.mainTabPage2.SuspendLayout();
             this.serverPanel.SuspendLayout();
             this.chatPanel.SuspendLayout();
             this.targetPanel.SuspendLayout();
+            this.updateTimePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainTab
@@ -124,40 +129,108 @@
             this.mainTab.Location = new System.Drawing.Point(12, 12);
             this.mainTab.Name = "mainTab";
             this.mainTab.SelectedIndex = 0;
-            this.mainTab.Size = new System.Drawing.Size(625, 320);
+            this.mainTab.Size = new System.Drawing.Size(625, 297);
             this.mainTab.TabIndex = 0;
             // 
             // mainTabPage1
             // 
+            this.mainTabPage1.Controls.Add(this.updateTimePanel);
+            this.mainTabPage1.Controls.Add(this.loadPanel);
             this.mainTabPage1.Controls.Add(this.resultPanel);
             this.mainTabPage1.Controls.Add(this.startPanel);
-            this.mainTabPage1.Controls.Add(this.loadPanel);
             this.mainTabPage1.Location = new System.Drawing.Point(4, 22);
             this.mainTabPage1.Name = "mainTabPage1";
             this.mainTabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.mainTabPage1.Size = new System.Drawing.Size(617, 294);
+            this.mainTabPage1.Size = new System.Drawing.Size(617, 271);
             this.mainTabPage1.TabIndex = 0;
             this.mainTabPage1.Text = "読み込み";
             this.mainTabPage1.UseVisualStyleBackColor = true;
             // 
+            // loadPanel
+            // 
+            this.loadPanel.Controls.Add(this.serverCutinButton);
+            this.loadPanel.Controls.Add(this.serverPostButton);
+            this.loadPanel.Controls.Add(this.loadSubmitButton);
+            this.loadPanel.Controls.Add(this.loadSelectButton);
+            this.loadPanel.Controls.Add(this.loadBox);
+            this.loadPanel.Controls.Add(this.loadLabel);
+            this.loadPanel.Location = new System.Drawing.Point(9, 215);
+            this.loadPanel.Name = "loadPanel";
+            this.loadPanel.Size = new System.Drawing.Size(600, 50);
+            this.loadPanel.TabIndex = 2;
+            // 
+            // serverCutinButton
+            // 
+            this.serverCutinButton.Location = new System.Drawing.Point(484, 18);
+            this.serverCutinButton.Name = "serverCutinButton";
+            this.serverCutinButton.Size = new System.Drawing.Size(94, 23);
+            this.serverCutinButton.TabIndex = 7;
+            this.serverCutinButton.Text = "割り込み送信";
+            this.serverCutinButton.UseVisualStyleBackColor = true;
+            this.serverCutinButton.Click += new System.EventHandler(this.serverCutinButton_Click);
+            // 
+            // serverPostButton
+            // 
+            this.serverPostButton.Location = new System.Drawing.Point(370, 18);
+            this.serverPostButton.Name = "serverPostButton";
+            this.serverPostButton.Size = new System.Drawing.Size(75, 23);
+            this.serverPostButton.TabIndex = 6;
+            this.serverPostButton.Text = "サーバ送信";
+            this.serverPostButton.UseVisualStyleBackColor = true;
+            this.serverPostButton.Click += new System.EventHandler(this.serverPostButton_Click);
+            // 
+            // loadSubmitButton
+            // 
+            this.loadSubmitButton.Location = new System.Drawing.Point(289, 18);
+            this.loadSubmitButton.Name = "loadSubmitButton";
+            this.loadSubmitButton.Size = new System.Drawing.Size(75, 23);
+            this.loadSubmitButton.TabIndex = 5;
+            this.loadSubmitButton.Text = "読み込み";
+            this.loadSubmitButton.UseVisualStyleBackColor = true;
+            this.loadSubmitButton.Click += new System.EventHandler(this.loadSubmitButton_Click);
+            // 
+            // loadSelectButton
+            // 
+            this.loadSelectButton.Location = new System.Drawing.Point(208, 18);
+            this.loadSelectButton.Name = "loadSelectButton";
+            this.loadSelectButton.Size = new System.Drawing.Size(75, 23);
+            this.loadSelectButton.TabIndex = 4;
+            this.loadSelectButton.Text = "選択";
+            this.loadSelectButton.UseVisualStyleBackColor = true;
+            this.loadSelectButton.Click += new System.EventHandler(this.loadSelectButton_Click);
+            // 
+            // loadBox
+            // 
+            this.loadBox.Location = new System.Drawing.Point(17, 20);
+            this.loadBox.Name = "loadBox";
+            this.loadBox.Size = new System.Drawing.Size(185, 19);
+            this.loadBox.TabIndex = 3;
+            // 
+            // loadLabel
+            // 
+            this.loadLabel.AutoSize = true;
+            this.loadLabel.Location = new System.Drawing.Point(15, 5);
+            this.loadLabel.Name = "loadLabel";
+            this.loadLabel.Size = new System.Drawing.Size(75, 12);
+            this.loadLabel.TabIndex = 0;
+            this.loadLabel.Text = "手動読み込み";
+            // 
             // resultPanel
             // 
-            this.resultPanel.Controls.Add(this.updateTimeLabel);
             this.resultPanel.Controls.Add(this.tableLayoutPanel1);
-            this.resultPanel.Controls.Add(this.resultLabel);
-            this.resultPanel.Location = new System.Drawing.Point(6, 62);
+            this.resultPanel.Location = new System.Drawing.Point(9, 52);
             this.resultPanel.Name = "resultPanel";
-            this.resultPanel.Size = new System.Drawing.Size(600, 177);
+            this.resultPanel.Size = new System.Drawing.Size(600, 157);
             this.resultPanel.TabIndex = 2;
             // 
-            // updateTimeLabel
+            // logUpdateTimeLabel
             // 
-            this.updateTimeLabel.AutoSize = true;
-            this.updateTimeLabel.Location = new System.Drawing.Point(96, 4);
-            this.updateTimeLabel.Name = "updateTimeLabel";
-            this.updateTimeLabel.Size = new System.Drawing.Size(11, 12);
-            this.updateTimeLabel.TabIndex = 2;
-            this.updateTimeLabel.Text = "-";
+            this.logUpdateTimeLabel.AutoSize = true;
+            this.logUpdateTimeLabel.Location = new System.Drawing.Point(99, 5);
+            this.logUpdateTimeLabel.Name = "logUpdateTimeLabel";
+            this.logUpdateTimeLabel.Size = new System.Drawing.Size(11, 12);
+            this.logUpdateTimeLabel.TabIndex = 2;
+            this.logUpdateTimeLabel.Text = "-";
             // 
             // tableLayoutPanel1
             // 
@@ -213,7 +286,7 @@
             this.tableLayoutPanel1.Controls.Add(this.resultF4, 4, 6);
             this.tableLayoutPanel1.Controls.Add(this.resultF5, 5, 6);
             this.tableLayoutPanel1.Controls.Add(this.resultF3, 3, 6);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(4, 20);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 7;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
@@ -718,91 +791,43 @@
             this.resultF3.Text = "-";
             this.resultF3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // resultLabel
+            // logUpdateTimeHeaderLabel
             // 
-            this.resultLabel.AutoSize = true;
-            this.resultLabel.Location = new System.Drawing.Point(15, 4);
-            this.resultLabel.Name = "resultLabel";
-            this.resultLabel.Size = new System.Drawing.Size(77, 12);
-            this.resultLabel.TabIndex = 0;
-            this.resultLabel.Text = "最終更新時間";
+            this.logUpdateTimeHeaderLabel.AutoSize = true;
+            this.logUpdateTimeHeaderLabel.Location = new System.Drawing.Point(3, 5);
+            this.logUpdateTimeHeaderLabel.Name = "logUpdateTimeHeaderLabel";
+            this.logUpdateTimeHeaderLabel.Size = new System.Drawing.Size(71, 12);
+            this.logUpdateTimeHeaderLabel.TabIndex = 0;
+            this.logUpdateTimeHeaderLabel.Text = "ログ取得時刻";
             // 
             // startPanel
             // 
+            this.startPanel.Controls.Add(this.latestButton);
             this.startPanel.Controls.Add(this.watchButton);
-            this.startPanel.Location = new System.Drawing.Point(6, 245);
+            this.startPanel.Location = new System.Drawing.Point(389, 8);
             this.startPanel.Name = "startPanel";
-            this.startPanel.Size = new System.Drawing.Size(107, 35);
+            this.startPanel.Size = new System.Drawing.Size(217, 35);
             this.startPanel.TabIndex = 1;
+            // 
+            // latestButton
+            // 
+            this.latestButton.Location = new System.Drawing.Point(13, 5);
+            this.latestButton.Name = "latestButton";
+            this.latestButton.Size = new System.Drawing.Size(90, 23);
+            this.latestButton.TabIndex = 1;
+            this.latestButton.Text = "サーバから最新";
+            this.latestButton.UseVisualStyleBackColor = true;
+            this.latestButton.Click += new System.EventHandler(this.latestButton_Click);
             // 
             // watchButton
             // 
-            this.watchButton.Location = new System.Drawing.Point(17, 7);
+            this.watchButton.Location = new System.Drawing.Point(130, 5);
             this.watchButton.Name = "watchButton";
             this.watchButton.Size = new System.Drawing.Size(75, 23);
-            this.watchButton.TabIndex = 4;
+            this.watchButton.TabIndex = 2;
             this.watchButton.Text = "監視開始";
             this.watchButton.UseVisualStyleBackColor = true;
             this.watchButton.Click += new System.EventHandler(this.watchButton_Click);
-            // 
-            // loadPanel
-            // 
-            this.loadPanel.Controls.Add(this.serverPostButton);
-            this.loadPanel.Controls.Add(this.resetButton);
-            this.loadPanel.Controls.Add(this.loadSubmitButton);
-            this.loadPanel.Controls.Add(this.loadSelectButton);
-            this.loadPanel.Controls.Add(this.loadBox);
-            this.loadPanel.Controls.Add(this.loadLabel);
-            this.loadPanel.Location = new System.Drawing.Point(6, 6);
-            this.loadPanel.Name = "loadPanel";
-            this.loadPanel.Size = new System.Drawing.Size(600, 50);
-            this.loadPanel.TabIndex = 0;
-            // 
-            // resetButton
-            // 
-            this.resetButton.Location = new System.Drawing.Point(500, 16);
-            this.resetButton.Name = "resetButton";
-            this.resetButton.Size = new System.Drawing.Size(90, 23);
-            this.resetButton.TabIndex = 6;
-            this.resetButton.Text = "データクリア";
-            this.resetButton.UseVisualStyleBackColor = true;
-            this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
-            // 
-            // loadSubmitButton
-            // 
-            this.loadSubmitButton.Location = new System.Drawing.Point(289, 18);
-            this.loadSubmitButton.Name = "loadSubmitButton";
-            this.loadSubmitButton.Size = new System.Drawing.Size(75, 23);
-            this.loadSubmitButton.TabIndex = 4;
-            this.loadSubmitButton.Text = "読み込み";
-            this.loadSubmitButton.UseVisualStyleBackColor = true;
-            this.loadSubmitButton.Click += new System.EventHandler(this.loadSubmitButton_Click);
-            // 
-            // loadSelectButton
-            // 
-            this.loadSelectButton.Location = new System.Drawing.Point(208, 18);
-            this.loadSelectButton.Name = "loadSelectButton";
-            this.loadSelectButton.Size = new System.Drawing.Size(75, 23);
-            this.loadSelectButton.TabIndex = 3;
-            this.loadSelectButton.Text = "選択";
-            this.loadSelectButton.UseVisualStyleBackColor = true;
-            this.loadSelectButton.Click += new System.EventHandler(this.loadSelectButton_Click);
-            // 
-            // loadBox
-            // 
-            this.loadBox.Location = new System.Drawing.Point(17, 20);
-            this.loadBox.Name = "loadBox";
-            this.loadBox.Size = new System.Drawing.Size(185, 19);
-            this.loadBox.TabIndex = 2;
-            // 
-            // loadLabel
-            // 
-            this.loadLabel.AutoSize = true;
-            this.loadLabel.Location = new System.Drawing.Point(15, 5);
-            this.loadLabel.Name = "loadLabel";
-            this.loadLabel.Size = new System.Drawing.Size(75, 12);
-            this.loadLabel.TabIndex = 0;
-            this.loadLabel.Text = "手動読み込み";
             // 
             // mainTabPage2
             // 
@@ -812,7 +837,7 @@
             this.mainTabPage2.Location = new System.Drawing.Point(4, 22);
             this.mainTabPage2.Name = "mainTabPage2";
             this.mainTabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.mainTabPage2.Size = new System.Drawing.Size(617, 294);
+            this.mainTabPage2.Size = new System.Drawing.Size(617, 271);
             this.mainTabPage2.TabIndex = 1;
             this.mainTabPage2.Text = "設定";
             this.mainTabPage2.UseVisualStyleBackColor = true;
@@ -981,36 +1006,54 @@
             // 
             // chatLogTimer
             // 
-            this.chatLogTimer.Interval = 1000;
+            this.chatLogTimer.Interval = 5000;
             this.chatLogTimer.Tick += new System.EventHandler(this.chatLogTimer_Tick);
             // 
-            // serverPostButton
+            // dataUpdateTimeHeaderLabel
             // 
-            this.serverPostButton.Location = new System.Drawing.Point(370, 18);
-            this.serverPostButton.Name = "serverPostButton";
-            this.serverPostButton.Size = new System.Drawing.Size(75, 23);
-            this.serverPostButton.TabIndex = 7;
-            this.serverPostButton.Text = "サーバ送信";
-            this.serverPostButton.UseVisualStyleBackColor = true;
-            this.serverPostButton.Click += new System.EventHandler(this.serverPostButton_Click);
+            this.dataUpdateTimeHeaderLabel.AutoSize = true;
+            this.dataUpdateTimeHeaderLabel.Location = new System.Drawing.Point(4, 25);
+            this.dataUpdateTimeHeaderLabel.Name = "dataUpdateTimeHeaderLabel";
+            this.dataUpdateTimeHeaderLabel.Size = new System.Drawing.Size(81, 12);
+            this.dataUpdateTimeHeaderLabel.TabIndex = 3;
+            this.dataUpdateTimeHeaderLabel.Text = "データ更新時刻";
+            // 
+            // dataUpdateTimeLabel
+            // 
+            this.dataUpdateTimeLabel.AutoSize = true;
+            this.dataUpdateTimeLabel.Location = new System.Drawing.Point(99, 25);
+            this.dataUpdateTimeLabel.Name = "dataUpdateTimeLabel";
+            this.dataUpdateTimeLabel.Size = new System.Drawing.Size(11, 12);
+            this.dataUpdateTimeLabel.TabIndex = 4;
+            this.dataUpdateTimeLabel.Text = "-";
+            // 
+            // updateTimePanel
+            // 
+            this.updateTimePanel.Controls.Add(this.dataUpdateTimeLabel);
+            this.updateTimePanel.Controls.Add(this.logUpdateTimeHeaderLabel);
+            this.updateTimePanel.Controls.Add(this.logUpdateTimeLabel);
+            this.updateTimePanel.Controls.Add(this.dataUpdateTimeHeaderLabel);
+            this.updateTimePanel.Location = new System.Drawing.Point(9, 6);
+            this.updateTimePanel.Name = "updateTimePanel";
+            this.updateTimePanel.Size = new System.Drawing.Size(290, 40);
+            this.updateTimePanel.TabIndex = 3;
             // 
             // ROGv
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(644, 337);
+            this.ClientSize = new System.Drawing.Size(644, 317);
             this.Controls.Add(this.mainTab);
             this.Name = "ROGv";
             this.Text = "ROGv - Forts Watching System -";
             this.Load += new System.EventHandler(this.rogv_Load);
             this.mainTab.ResumeLayout(false);
             this.mainTabPage1.ResumeLayout(false);
-            this.resultPanel.ResumeLayout(false);
-            this.resultPanel.PerformLayout();
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.startPanel.ResumeLayout(false);
             this.loadPanel.ResumeLayout(false);
             this.loadPanel.PerformLayout();
+            this.resultPanel.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.startPanel.ResumeLayout(false);
             this.mainTabPage2.ResumeLayout(false);
             this.serverPanel.ResumeLayout(false);
             this.serverPanel.PerformLayout();
@@ -1018,6 +1061,8 @@
             this.chatPanel.PerformLayout();
             this.targetPanel.ResumeLayout(false);
             this.targetPanel.PerformLayout();
+            this.updateTimePanel.ResumeLayout(false);
+            this.updateTimePanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1043,7 +1088,7 @@
         private System.Windows.Forms.Panel startPanel;
         private System.Windows.Forms.Button watchButton;
         private System.Windows.Forms.Panel resultPanel;
-        private System.Windows.Forms.Label resultLabel;
+        private System.Windows.Forms.Label logUpdateTimeHeaderLabel;
         private System.Windows.Forms.Panel chatPanel;
         private System.Windows.Forms.TextBox chatBox;
         private System.Windows.Forms.Label chatLabel;
@@ -1092,14 +1137,18 @@
         private System.Windows.Forms.TextBox serverKeyBox;
         private System.Windows.Forms.Label serverKeyLabel;
         private System.Windows.Forms.Button chatButton;
-        private System.Windows.Forms.Label updateTimeLabel;
-        private System.Windows.Forms.Button resetButton;
+        private System.Windows.Forms.Label logUpdateTimeLabel;
+        private System.Windows.Forms.Button latestButton;
         private System.Windows.Forms.TextBox authPassBox;
         private System.Windows.Forms.Label authPassLabel;
         private System.Windows.Forms.TextBox authIdBox;
         private System.Windows.Forms.Label authIdLabel;
         private System.Windows.Forms.Timer chatLogTimer;
         private System.Windows.Forms.Button serverPostButton;
+        private System.Windows.Forms.Button serverCutinButton;
+        private System.Windows.Forms.Label dataUpdateTimeHeaderLabel;
+        private System.Windows.Forms.Label dataUpdateTimeLabel;
+        private System.Windows.Forms.Panel updateTimePanel;
     }
 }
 
