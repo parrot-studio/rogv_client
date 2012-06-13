@@ -45,6 +45,16 @@ http://www.microsoft.com/downloads/ja-jp/details.aspx?FamilyID=0a391abd-25c1-4fc
 
 あなた自身で判断できるようにソースを公開したわけで、判断はお任せします。
 
+ChangeLog
+---------------
+#### ver1.1
+- ログ読み込み時にサーバから最新データを取得するように修正
+- ログの手動読み込みの目的を変更
+- 割り込みボタンを追加
+
+#### ver1.0
+- 公開版
+
 License
 ---------------
 The MIT License
