@@ -47,6 +47,10 @@ http://www.microsoft.com/downloads/ja-jp/details.aspx?FamilyID=0a391abd-25c1-4fc
 
 ChangeLog
 ---------------
+#### ver2.0
+- GvTEに対応
+- 全体をリファクタリング
+
 #### ver1.1
 - ログ読み込み時にサーバから最新データを取得するように修正
 - ログの手動読み込みの目的を変更
