@@ -11,9 +11,9 @@ namespace rogv
     public partial class ROGv : Form
     {
         private WebClient client = new WebClient();
-        private FortMapper mapper = new FortMapper();
-        private Boolean watching = false;
-        private FileInfo lastFile;
+        private FortViewData feData = new FortViewData("FE");
+        private FortViewData teData = new FortViewData("TE");
+        private FortViewData dataForWatch = null;
 
         public ROGv()
         {
@@ -22,13 +22,21 @@ namespace rogv
 
         private void rogv_Load(object sender, EventArgs e)
         {
-            targetPathBox.Text = Properties.Settings.Default.TargetPath;
-            chatBox.Text = Properties.Settings.Default.FileHeader;
-            serverUrlBox.Text = Properties.Settings.Default.ServerURL;
-            serverKeyBox.Text = Properties.Settings.Default.ServerKey;
-            authIdBox.Text = Properties.Settings.Default.AuthId;
-            authPassBox.Text = Properties.Settings.Default.AuthPass;
-            Properties.Settings.Default.Save();
+            Setting set = feData.Setting;
+            targetPathBox.Text = set.TargetPath;
+            chatBox.Text = set.FileHeader;
+            serverUrlBox.Text = set.ServerUrl;
+            serverKeyBox.Text = set.ServerKey;
+            authIdBox.Text = set.AuthId;
+            authPassBox.Text = set.AuthPass;
+
+            Setting setTe = teData.Setting;
+            targetPathTeBox.Text = setTe.TargetPath;
+            chatTeBox.Text = setTe.FileHeader;
+            serverUrlTeBox.Text = setTe.ServerUrl;
+            serverKeyTeBox.Text = setTe.ServerKey;
+            authIdTeBox.Text = setTe.AuthId;
+            authPassTeBox.Text = setTe.AuthPass;
         }
 
         private void targetButton_Click(object sender, EventArgs e)
@@ -40,8 +48,24 @@ namespace rogv
             {
                 String path = fbd.SelectedPath;
                 targetPathBox.Text = path;
-                Properties.Settings.Default.TargetPath = path;
-                Properties.Settings.Default.Save();
+                Setting set = feData.Setting;
+                set.TargetPath = path;
+                set.Save();
+            }
+        }
+
+        private void targetTeButton_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            fbd.ShowNewFolderButton = false;
+
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                String path = fbd.SelectedPath;
+                targetPathTeBox.Text = path;
+                Setting set = teData.Setting;
+                set.TargetPath = path;
+                set.Save();
             }
         }
 
@@ -57,8 +81,31 @@ namespace rogv
                 return;
             }
 
-            Properties.Settings.Default.FileHeader = chatHeader;
-            Properties.Settings.Default.Save();
+            Setting set = feData.Setting;
+            set.FileHeader = chatHeader;
+            set.Save();
+
+            MessageBox.Show("設定されました。",
+                "ROGv",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Asterisk);
+        }
+
+        private void chatTeButton_Click(object sender, EventArgs e)
+        {
+            String chatHeader = chatTeBox.Text.Trim();
+            if (chatHeader == "")
+            {
+                MessageBox.Show("チャットタブ名が指定されていません。",
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            Setting set = teData.Setting;
+            set.FileHeader = chatHeader;
+            set.Save();
 
             MessageBox.Show("設定されました。",
                 "ROGv",
@@ -68,20 +115,50 @@ namespace rogv
 
         private void serverButton_Click(object sender, EventArgs e)
         {
-            String url = serverUrlBox.Text;
-            String key = serverKeyBox.Text;
-            String aId = authIdBox.Text;
-            String aPass = authPassBox.Text;
+            Setting set = feData.Setting;
+            set.ServerUrl = serverUrlBox.Text;
+            set.ServerKey = serverKeyBox.Text;
+            set.AuthId = authIdBox.Text;
+            set.AuthPass = authPassBox.Text;
 
             try
             {
-                if (PostServer("/status", "", "post", url, key, aId, aPass) == "OK")
+                if (PostServer("/status", "", "post", set) == "OK")
                 {
-                    Properties.Settings.Default.ServerURL = url;
-                    Properties.Settings.Default.ServerKey = key;
-                    Properties.Settings.Default.AuthId = aId;
-                    Properties.Settings.Default.AuthPass = aPass;
-                    Properties.Settings.Default.Save();
+                    set.Save();
+
+                    MessageBox.Show("通信テストに成功しました。",
+                        "ROGv",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Asterisk);
+                }
+                else
+                {
+                    throw new System.Net.WebException();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("通信に失敗しました。",
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void serverTeButton_Click(object sender, EventArgs e)
+        {
+            Setting set = teData.Setting;
+            set.ServerUrl = serverUrlTeBox.Text;
+            set.ServerKey = serverKeyTeBox.Text;
+            set.AuthId = authIdTeBox.Text;
+            set.AuthPass = authPassTeBox.Text;
+
+            try
+            {
+                if (PostServer("/status", "", "post", set) == "OK")
+                {
+                    set.Save();
 
                     MessageBox.Show("通信テストに成功しました。",
                         "ROGv",
@@ -104,29 +181,64 @@ namespace rogv
 
         private void loadSelectButton_Click(object sender, EventArgs e)
         {
+            Setting set = feData.Setting;
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "テキストファイル|*.txt";
-            ofd.InitialDirectory = Properties.Settings.Default.TargetPath;
+            ofd.InitialDirectory = set.TargetPath;
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 loadBox.Text = ofd.FileName;
             }
         }
 
+        private void loadSelectTeButton_Click(object sender, EventArgs e)
+        {
+            Setting set = teData.Setting;
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "テキストファイル|*.txt";
+            ofd.InitialDirectory = set.TargetPath;
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                loadTeBox.Text = ofd.FileName;
+            }
+        }
+
         private void loadSubmitButton_Click(object sender, EventArgs e)
         {
             String path = loadBox.Text;
-            mapper.Reset();
-            if (UpdateFortsInfo(path))
+            feData.Mapper.Reset();
+            if (UpdateFortsInfo(path, feData.Mapper))
             {
-                lastFile = new FileInfo(path);
-                ViewFortsInfo();
+                feData.LastFile = new FileInfo(path);
+                ViewFortsInfo(feData);
+            }
+        }
+
+        private void loadSubmitTeButton_Click(object sender, EventArgs e)
+        {
+            String path = loadTeBox.Text;
+            teData.Mapper.Reset();
+            if (UpdateFortsInfo(path, teData.Mapper))
+            {
+                teData.LastFile = new FileInfo(path);
+                ViewFortsInfo(teData);
             }
         }
 
         private void serverPostButton_Click(object sender, EventArgs e)
         {
-            if (UpdateServerInfo())
+            if (UpdateServerInfo(feData))
+            {
+                MessageBox.Show("サーバに送信しました。",
+                    "ROGv",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+            }
+        }
+
+        private void serverPostTeButton_Click(object sender, EventArgs e)
+        {
+            if (UpdateServerInfo(teData))
             {
                 MessageBox.Show("サーバに送信しました。",
                     "ROGv",
@@ -137,7 +249,18 @@ namespace rogv
 
         private void serverCutinButton_Click(object sender, EventArgs e)
         {
-            if (CutInServerInfo())
+            if (CutInServerInfo(feData))
+            {
+                MessageBox.Show("サーバに送信しました。",
+                    "ROGv",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+            }
+        }
+
+        private void serverCutinTeButton_Click(object sender, EventArgs e)
+        {
+            if (CutInServerInfo(teData))
             {
                 MessageBox.Show("サーバに送信しました。",
                     "ROGv",
@@ -148,12 +271,22 @@ namespace rogv
 
         private void watchButton_Click(object sender, EventArgs e)
         {
-            if (watching)
+            if (dataForWatch != null)
             {
-                chatLogTimer.Enabled = false;
-                loadPanel.Enabled = true;
-                watching = false;
-                watchButton.Text = "監視開始";
+                if (dataForWatch.GvType == "FE")
+                {
+                    chatLogTimer.Enabled = false;
+                    loadPanel.Enabled = true;
+                    loadTePanel.Enabled = true;
+                    startTePanel.Enabled = true;
+                    dataForWatch = null;
+                    watchButton.Text = "監視開始";
+                    watchTeButton.Text = "監視開始";
+                }
+                else
+                {
+                    return;
+                }
             }
             else
             {
@@ -168,10 +301,58 @@ namespace rogv
                 }
                 chatLogTimer.Enabled = true;
                 loadPanel.Enabled = false;
-                watching = true;
+                loadTePanel.Enabled = false;
+                startTePanel.Enabled = false;
+                dataForWatch = feData;
                 watchButton.Text = "監視停止";
+                watchTeButton.Text = "FE監視中";
 
-                MessageBox.Show("フォルダの監視を開始しました。",
+                MessageBox.Show("FEの監視を開始しました。",
+                       "ROGv",
+                       MessageBoxButtons.OK,
+                       MessageBoxIcon.Asterisk);
+            }
+        }
+
+        private void watchTeButton_Click(object sender, EventArgs e)
+        {
+            if (dataForWatch != null)
+            {
+                if (dataForWatch.GvType == "TE")
+                {
+                    chatLogTimer.Enabled = false;
+                    loadPanel.Enabled = true;
+                    loadTePanel.Enabled = true;
+                    startPanel.Enabled = true;
+                    dataForWatch = null;
+                    watchButton.Text = "監視開始";
+                    watchTeButton.Text = "監視開始";
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                String path = targetPathTeBox.Text;
+                if (!Directory.Exists(path))
+                {
+                    MessageBox.Show("指定されたフォルダは存在しません。",
+                        "エラー",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    return;
+                }
+                chatLogTimer.Enabled = true;
+                loadPanel.Enabled = false;
+                loadTePanel.Enabled = false;
+                startPanel.Enabled = false;
+                dataForWatch = teData;
+                watchButton.Text = "TE監視中";
+                watchTeButton.Text = "監視停止";
+
+                MessageBox.Show("TEの監視を開始しました。",
                        "ROGv",
                        MessageBoxButtons.OK,
                        MessageBoxIcon.Asterisk);
@@ -180,61 +361,61 @@ namespace rogv
 
         private void chatLogTimer_Tick(object sender, EventArgs e)
         {
-            var di = new DirectoryInfo(targetPathBox.Text);
-            var pattern = "Chat_" + chatBox.Text + "*.txt";
-            var target = di.EnumerateFiles(pattern).OrderBy(f => f.LastWriteTime).Last();
-            if (target == null)
+            if (dataForWatch == null)
             {
                 return;
             }
-            if (lastFile == null || lastFile.LastWriteTime < target.LastWriteTime)
+
+            var di = new DirectoryInfo(dataForWatch.Setting.TargetPath);
+            var pattern = "Chat_" + dataForWatch.Setting.FileHeader + "*.txt";
+            var targets = di.EnumerateFiles(pattern).OrderBy(f => f.LastWriteTime);
+
+            if (targets.Count() <= 0)
             {
-                ApplyLatestServerInfo();
-                if (mapper.UpdateTime < target.LastWriteTime)
+                return;
+            }
+            var target = targets.Last();
+            if (dataForWatch.LastFile == null || dataForWatch.LastFile.LastWriteTime < target.LastWriteTime)
+            {
+                ApplyLatestServerInfo(dataForWatch);
+                if (dataForWatch.Mapper.UpdateTime < target.LastWriteTime)
                 {
-                    UpdateFortsInfo(target.FullName);
-                    UpdateServerInfo();
+                    UpdateFortsInfo(target.FullName, dataForWatch.Mapper);
+                    UpdateServerInfo(dataForWatch);
                 }
-                lastFile = target;
-                ViewFortsInfo();
+                dataForWatch.LastFile = target;
+                ViewFortsInfo(dataForWatch);
             }
         }
 
         private void latestButton_Click(object sender, EventArgs e)
         {
-            mapper.Reset();
-            ApplyLatestServerInfo();
-            ViewFortsInfo();
-            lastFile = null;
+            feData.Mapper.Reset();
+            ApplyLatestServerInfo(feData);
+            ViewFortsInfo(feData);
+            feData.LastFile = null;
         }
 
-        private String PostServer(String path, String data, String method,
-            String url = null, String key = null,
-            String authId = null, String authPass = null)
+        private void latestTeButton_Click(object sender, EventArgs e)
         {
+            teData.Mapper.Reset();
+            ApplyLatestServerInfo(teData);
+            ViewFortsInfo(teData);
+            teData.LastFile = null;
+        }
 
-            if (url == null)
+        private String PostServer(String path, String data, String method, Setting set)
+        {
+            if (set == null)
             {
-                url = Properties.Settings.Default.ServerURL;
-            }
-            if (key == null)
-            {
-                key = Properties.Settings.Default.ServerKey;
-            }
-            if (authId == null)
-            {
-                authId = Properties.Settings.Default.AuthId;
-            }
-            if (authPass == null)
-            {
-                authPass = Properties.Settings.Default.AuthPass;
+                throw new System.Net.WebException();
             }
 
-            Uri uri = new Uri(url + path);
-            client.Credentials = new NetworkCredential(authId, authPass);
+            Uri uri = new Uri(set.ServerUrl + path);
+            client.Credentials = new NetworkCredential(set.AuthId, set.AuthPass);
 
             NameValueCollection vc = new NameValueCollection();
-            vc.Add("k", key);
+            vc.Add("k", set.ServerKey);
             vc.Add("d", data);
             if (method == "put" || method == "delete")
             {
@@ -244,7 +425,7 @@ namespace rogv
             return Encoding.UTF8.GetString(client.UploadValues(uri, vc));
         }
 
-        private Boolean UpdateFortsInfo(String path)
+        private Boolean UpdateFortsInfo(String path, FortMapper map)
         {
             if (path == "" || !File.Exists(path))
             {
@@ -258,7 +439,7 @@ namespace rogv
             try
             {
                 DateTime uTime = File.GetLastWriteTime(path);
-                mapper.ReadLog(
+                map.ReadLog(
                     File.ReadAllText(path, Encoding.Default),
                     uTime);
 
@@ -274,9 +455,9 @@ namespace rogv
             }
         }
 
-        private void SetFortInfo(String id, Label label)
+        private void SetFortInfo(String id, Label label, FortMapper map)
         {
-            Fort fort = mapper.FortInfo(id);
+            Fort fort = map.FortInfo(id);
             if (fort == null)
             {
                 label.Text = "-";
@@ -287,51 +468,85 @@ namespace rogv
             }
         }
 
-        private void ViewFortsInfo()
+        private void ViewFortsInfo(FortViewData data)
         {
-            if (lastFile != null)
+            if (data.GvType == "FE")
             {
-                logUpdateTimeLabel.Text = lastFile.LastWriteTime.ToString();
+                ViewFeFortsInfo(data);
             }
-            dataUpdateTimeLabel.Text = mapper.UpdateTime.ToString();
-
-            SetFortInfo("V1", resultV1);
-            SetFortInfo("V2", resultV2);
-            SetFortInfo("V3", resultV3);
-            SetFortInfo("V4", resultV4);
-            SetFortInfo("V5", resultV5);
-            SetFortInfo("C1", resultC1);
-            SetFortInfo("C2", resultC2);
-            SetFortInfo("C3", resultC3);
-            SetFortInfo("C4", resultC4);
-            SetFortInfo("C5", resultC5);
-            SetFortInfo("B1", resultB1);
-            SetFortInfo("B2", resultB2);
-            SetFortInfo("B3", resultB3);
-            SetFortInfo("B4", resultB4);
-            SetFortInfo("B5", resultB5);
-            SetFortInfo("L1", resultL1);
-            SetFortInfo("L2", resultL2);
-            SetFortInfo("L3", resultL3);
-            SetFortInfo("L4", resultL4);
-            SetFortInfo("L5", resultL5);
-            SetFortInfo("N1", resultN1);
-            SetFortInfo("N2", resultN2);
-            SetFortInfo("N3", resultN3);
-            SetFortInfo("N4", resultN4);
-            SetFortInfo("N5", resultN5);
-            SetFortInfo("F1", resultF1);
-            SetFortInfo("F2", resultF2);
-            SetFortInfo("F3", resultF3);
-            SetFortInfo("F4", resultF4);
-            SetFortInfo("F5", resultF5);
+            else if (data.GvType == "TE")
+            {
+                ViewTeFortsInfo(data);
+            }
         }
 
-        private Boolean PostMapperInfo(String path)
+        private void ViewFeFortsInfo(FortViewData data)
+        {
+            if (data.LastFile != null)
+            {
+                logUpdateTimeLabel.Text = data.LastFile.LastWriteTime.ToString();
+            }
+            FortMapper map = data.Mapper;
+            dataUpdateTimeLabel.Text = map.UpdateTime.ToString();
+
+            SetFortInfo("V1", resultV1, map);
+            SetFortInfo("V2", resultV2, map);
+            SetFortInfo("V3", resultV3, map);
+            SetFortInfo("V4", resultV4, map);
+            SetFortInfo("V5", resultV5, map);
+            SetFortInfo("C1", resultC1, map);
+            SetFortInfo("C2", resultC2, map);
+            SetFortInfo("C3", resultC3, map);
+            SetFortInfo("C4", resultC4, map);
+            SetFortInfo("C5", resultC5, map);
+            SetFortInfo("B1", resultB1, map);
+            SetFortInfo("B2", resultB2, map);
+            SetFortInfo("B3", resultB3, map);
+            SetFortInfo("B4", resultB4, map);
+            SetFortInfo("B5", resultB5, map);
+            SetFortInfo("L1", resultL1, map);
+            SetFortInfo("L2", resultL2, map);
+            SetFortInfo("L3", resultL3, map);
+            SetFortInfo("L4", resultL4, map);
+            SetFortInfo("L5", resultL5, map);
+            SetFortInfo("N1", resultN1, map);
+            SetFortInfo("N2", resultN2, map);
+            SetFortInfo("N3", resultN3, map);
+            SetFortInfo("N4", resultN4, map);
+            SetFortInfo("N5", resultN5, map);
+            SetFortInfo("F1", resultF1, map);
+            SetFortInfo("F2", resultF2, map);
+            SetFortInfo("F3", resultF3, map);
+            SetFortInfo("F4", resultF4, map);
+            SetFortInfo("F5", resultF5, map);
+        }
+
+        private void ViewTeFortsInfo(FortViewData data)
+        {
+            if (data.LastFile != null)
+            {
+                logUpdateTimeTeLabel.Text = data.LastFile.LastWriteTime.ToString();
+            }
+            FortMapper map = data.Mapper;
+            dataUpdateTimeTeLabel.Text = map.UpdateTime.ToString();
+
+            SetFortInfo("G1", resultG1, map);
+            SetFortInfo("G2", resultG2, map);
+            SetFortInfo("G3", resultG3, map);
+            SetFortInfo("G4", resultG4, map);
+            SetFortInfo("G5", resultG5, map);
+            SetFortInfo("K1", resultK1, map);
+            SetFortInfo("K2", resultK2, map);
+            SetFortInfo("K3", resultK3, map);
+            SetFortInfo("K4", resultK4, map);
+            SetFortInfo("K5", resultK5, map);
+        }
+
+        private Boolean PostMapperInfo(String path, FortViewData data)
         {
             try
             {
-                if (PostServer(path, mapper.Serialize(), "put") == "OK")
+                if (PostServer(path, data.Mapper.Serialize(), "put", data.Setting) == "OK")
                 {
                     return true;
                 }
@@ -350,24 +565,24 @@ namespace rogv
             }
         }
 
-        private Boolean UpdateServerInfo()
+        private Boolean UpdateServerInfo(FortViewData data)
         {
-            return PostMapperInfo("/update");
+            return PostMapperInfo("/update", data);
         }
 
-        private Boolean CutInServerInfo()
+        private Boolean CutInServerInfo(FortViewData data)
         {
-            return PostMapperInfo("/cutin");
+            return PostMapperInfo("/cutin", data);
         }
 
-        private Boolean ApplyLatestServerInfo()
+        private Boolean ApplyLatestServerInfo(FortViewData data)
         {
             try
             {
-                var ret = PostServer("/latest", "", "post");
+                var ret = PostServer("/latest", "", "post", data.Setting);
                 if (ret != null)
                 {
-                    mapper.ApplyLatestInfo(ret);
+                    data.Mapper.ApplyLatestInfo(ret);
                     return true;
                 }
                 else

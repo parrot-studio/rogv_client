@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
@@ -137,7 +138,7 @@ namespace rogv
         public void Reset()
         {
             fortMap = new Dictionary<String, Fort>();
-            updateTime = new DateTime(2001,1,1);
+            updateTime = new DateTime(2001, 1, 1);
         }
 
         public Fort FortInfo(String id)
@@ -183,5 +184,105 @@ namespace rogv
             }
             fort.UpdateGuildStatus(guildName, utime);
         }
+    }
+
+    public class Setting
+    {
+        public String TargetPath { get; set; }
+        public String FileHeader { get; set; }
+        public String ServerUrl { get; set; }
+        public String ServerKey { get; set; }
+        public String AuthId { get; set; }
+        public String AuthPass { get; set; }
+        public String GvType { get; set; }
+
+        public void Save()
+        {
+            if (GvType == "FE")
+            {
+                Properties.Settings.Default.TargetPath = this.TargetPath;
+                Properties.Settings.Default.FileHeader = this.FileHeader;
+                Properties.Settings.Default.ServerUrl = this.ServerUrl;
+                Properties.Settings.Default.ServerKey = this.ServerKey;
+                Properties.Settings.Default.AuthId = this.AuthId;
+                Properties.Settings.Default.AuthPass = this.AuthPass;
+            }
+            else if (GvType == "TE")
+            {
+                Properties.Settings.Default.TargetPathTe = this.TargetPath;
+                Properties.Settings.Default.FileHeaderTe = this.FileHeader;
+                Properties.Settings.Default.ServerUrlTe = this.ServerUrl;
+                Properties.Settings.Default.ServerKeyTe = this.ServerKey;
+                Properties.Settings.Default.AuthIdTe = this.AuthId;
+                Properties.Settings.Default.AuthPassTe = this.AuthPass;
+            }
+            Properties.Settings.Default.Save();
+        }
+
+        public static Setting Load(String gvType)
+        {
+            var set = new Setting();
+            if (gvType == "FE")
+            {
+                set.TargetPath = Properties.Settings.Default.TargetPath;
+                set.FileHeader = Properties.Settings.Default.FileHeader;
+                set.ServerUrl = Properties.Settings.Default.ServerUrl;
+                set.ServerKey = Properties.Settings.Default.ServerKey;
+                set.AuthId = Properties.Settings.Default.AuthId;
+                set.AuthPass = Properties.Settings.Default.AuthPass;
+                set.GvType = gvType;
+            }
+            else if (gvType == "TE")
+            {
+                set.TargetPath = Properties.Settings.Default.TargetPathTe;
+                set.FileHeader = Properties.Settings.Default.FileHeaderTe;
+                set.ServerUrl = Properties.Settings.Default.ServerUrlTe;
+                set.ServerKey = Properties.Settings.Default.ServerKeyTe;
+                set.AuthId = Properties.Settings.Default.AuthIdTe;
+                set.AuthPass = Properties.Settings.Default.AuthPassTe;
+                set.GvType = gvType;
+            }
+            else
+            {
+                throw new Exception("Unknown Type");
+            }
+            return set;
+        }
+
+        public Boolean isTe
+        {
+            get { return (GvType == "TE"); }
+        }
+    }
+
+    public class FortViewData
+    {
+        private String gvType;
+        private FortMapper mapper;
+        private Setting setting;
+
+        public FortViewData(String gvType)
+        {
+            this.gvType = gvType;
+            this.mapper = new FortMapper();
+            this.setting = Setting.Load(this.GvType);
+        }
+
+        public String GvType
+        {
+            get { return gvType; }
+        }
+
+        public FortMapper Mapper
+        {
+            get { return mapper; }
+        }
+
+        public Setting Setting
+        {
+            get { return setting; }
+        }
+
+        public FileInfo LastFile { get; set; }
     }
 }
