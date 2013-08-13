@@ -13,7 +13,7 @@ Usage
 ---------------
 - Serverを設置する
 
-https://github.com/parrot-studio/rogv_server
+https://github.com/parrot-studio/gagnrath
 
 - Serverの情報を入力してテストする
 - ROのChatディレクトリを指定
@@ -25,7 +25,7 @@ https://github.com/parrot-studio/rogv_server
 
 Sample Site
 ---------------
-http://parrot-studio.com/rogvs/
+http://ro.parrot-studio.com/rogvs/
 
 EAQ(Expected Asked Questions)
 ---------------
